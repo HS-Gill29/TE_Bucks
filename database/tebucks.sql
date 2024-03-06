@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users, account, transfer;
 
 CREATE TABLE users (
 	user_id serial NOT NULL,
@@ -14,5 +14,18 @@ CREATE TABLE users (
 	CONSTRAINT uq_username UNIQUE (username)
 );
 
+CREATE TABLE account (
+	account_id SERIAL PRIMARY KEY,
+	user_id int NOT NULL REFERENCES users(user_id),
+	account_balance NUMERIC(20,2) NOT NULL DEFAULT (1000)
+);
+
+CREATE TABLE transfer (
+	transfer_id SERIAL PRIMARY KEY,
+	account_sending int NOT NULL REFERENCES account(account_id),
+	account_receiving int NOT NULL REFERENCES account(account_id),
+	transfer_amount NUMERIC(6,2) CHECK (transfer_amount > 0),
+	transfer_status VARCHAR(10) NOT NULL CHECK (transfer_status IN ('Approved', 'Pending', 'Rejected'))
+);
 
 COMMIT TRANSACTION;

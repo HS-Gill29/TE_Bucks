@@ -4,13 +4,13 @@ public class Account {
 
     private int accountId;
     private int userId;
-    private double accountBalance;
+    private double balance;
     private final double INITIAL_ACCOUNT_BALANCE = 1000.00;
 
     public Account(int accountId, int userId) {
         this.accountId = accountId;
         this.userId = userId;
-        this.accountBalance = INITIAL_ACCOUNT_BALANCE;
+        this.balance = INITIAL_ACCOUNT_BALANCE;
     }
 
     public Account() {
@@ -33,11 +33,11 @@ public class Account {
         this.userId = userId;
     }
 
-    public double getAccountBalance() {
-        return accountBalance;
+    public double getBalance() {
+        return balance;
     }
 
-    public void setAccountBalance(double accountBalance) {
-        this.accountBalance = accountBalance;
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

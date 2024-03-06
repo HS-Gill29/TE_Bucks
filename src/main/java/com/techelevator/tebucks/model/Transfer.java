@@ -3,20 +3,18 @@ package com.techelevator.tebucks.model;
 public class Transfer {
 
     private int transferId;
-    private int accountSendingMoney;
-    private int accountReceivingMoney;
-    private double transferAmount;
+    private int userFrom;
+    private int userTo;
+    private double amount;
     private String transferStatus;
+    private String transferType;
 
-    private boolean isRequest;
-
-    public Transfer(int transferId, int accountSendingMoney, int accountReceivingMoney, double transferAmount, String transferStatus, boolean isRequest) {
+    public Transfer(int transferId, int userFrom, int userTo, double amount, String transferType) {
         this.transferId = transferId;
-        this.accountSendingMoney = accountSendingMoney;
-        this.accountReceivingMoney = accountReceivingMoney;
-        this.transferAmount = transferAmount;
-        this.transferStatus = transferStatus;
-        this.isRequest = isRequest;
+        this.userFrom = userFrom;
+        this.userTo = userTo;
+        this.amount = amount;
+        this.transferType = transferType;
     }
 
     public int getTransferId() {
@@ -27,28 +25,28 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public int getAccountSending() {
-        return accountSending;
+    public int getUserFrom() {
+        return userFrom;
     }
 
-    public void setAccountSending(int accountSending) {
-        this.accountSending = accountSending;
+    public void setUserFrom(int userFrom) {
+        this.userFrom = userFrom;
     }
 
-    public int getAccountReceiving() {
-        return accountReceiving;
+    public int getUserTo() {
+        return userTo;
     }
 
-    public void setAccountReceiving(int accountReceiving) {
-        this.accountReceiving = accountReceiving;
+    public void setUserTo(int userTo) {
+        this.userTo = userTo;
     }
 
-    public double getTransferAmount() {
-        return transferAmount;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setTransferAmount(double transferAmount) {
-        this.transferAmount = transferAmount;
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getTransferStatus() {
@@ -59,11 +57,11 @@ public class Transfer {
         this.transferStatus = transferStatus;
     }
 
-    public boolean isRequest() {
-        return isRequest;
+    public String getTransferType() {
+        return transferType;
     }
 
-    public void setRequest(boolean request) {
-        isRequest = request;
+    public void setTransferType(String transferType) {
+        this.transferType = transferType;
     }
 }

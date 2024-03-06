@@ -22,8 +22,9 @@ CREATE TABLE account (
 
 CREATE TABLE transfer (
 	transfer_id SERIAL PRIMARY KEY,
-	account_sending int NOT NULL REFERENCES account(account_id),
-	account_receiving int NOT NULL REFERENCES account(account_id),
+	account_sending_money int NOT NULL REFERENCES account(account_id),
+	account_receiving_money int NOT NULL REFERENCES account(account_id),
+	account_initiating_transfer int NOT NULL REFERENCES account(account_id),
 	transfer_amount NUMERIC(6,2) CHECK (transfer_amount > 0),
 	transfer_status VARCHAR(10) NOT NULL CHECK (transfer_status IN ('Approved', 'Pending', 'Rejected'))
 );

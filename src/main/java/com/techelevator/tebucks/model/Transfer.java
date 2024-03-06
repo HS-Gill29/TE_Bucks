@@ -2,72 +2,74 @@ package com.techelevator.tebucks.model;
 
 public class Transfer {
 
-    private int transferId;
-    private int accountSendingMoney;
-    private int accountReceivingMoney;
-    private double transferAmount;
-    private String transferStatus;
+  private int transferId;
+  private int userFrom;
+  private int userTo;
+  private double amount;
+  private String transferStatus;
+  private String transferType;
 
-    private boolean isRequest;
+  public Transfer(
+    int transferId,
+    int userFrom,
+    int userTo,
+    double amount,
+    String transferType
+  ) {
+    this.transferId = transferId;
+    this.userFrom = userFrom;
+    this.userTo = userTo;
+    this.amount = amount;
+    this.transferType = transferType;
+  }
 
-    public Transfer(int transferId, int accountSendingMoney, int accountReceivingMoney, double transferAmount, String transferStatus, boolean isRequest) {
-        this.transferId = transferId;
-        this.accountSendingMoney = accountSendingMoney;
-        this.accountReceivingMoney = accountReceivingMoney;
-        this.transferAmount = transferAmount;
-        this.transferStatus = transferStatus;
-        this.isRequest = isRequest;
-    }
+  public Transfer() {}
 
-    public Transfer() {
+  public int getTransferId() {
+    return transferId;
+  }
 
-    }
+  public void setTransferId(int transferId) {
+    this.transferId = transferId;
+  }
 
-    public int getTransferId() {
-        return transferId;
-    }
+  public int getAccountSending() {
+    return accountSending;
+  }
 
-    public void setTransferId(int transferId) {
-        this.transferId = transferId;
-    }
+  public void setUserFrom(int userFrom) {
+    this.userFrom = userFrom;
+  }
 
-    public int getAccountSending() {
-        return accountSendingMoney;
-    }
+  public int getAccountReceiving() {
+    return accountReceiving;
+  }
 
-    public void setAccountSending(int accountSending) {
-        this.accountSendingMoney = accountSending;
-    }
+  public void setAccountReceiving(int accountReceiving) {
+    this.accountReceiving = accountReceiving;
+  }
 
-    public int getAccountReceiving() {
-        return accountReceivingMoney;
-    }
+  public double getAmount() {
+    return amount;
+  }
 
-    public void setAccountReceiving(int accountReceiving) {
-        this.accountReceivingMoney = accountReceiving;
-    }
+  public void setAmount(double amount) {
+    this.amount = amount;
+  }
 
-    public double getTransferAmount() {
-        return transferAmount;
-    }
+  public String getTransferStatus() {
+    return transferStatus;
+  }
 
-    public void setTransferAmount(double transferAmount) {
-        this.transferAmount = transferAmount;
-    }
+  public void setTransferStatus(String transferStatus) {
+    this.transferStatus = transferStatus;
+  }
 
-    public String getTransferStatus() {
-        return transferStatus;
-    }
+  public String getTransferType() {
+    return transferType;
+  }
 
-    public void setTransferStatus(String transferStatus) {
-        this.transferStatus = transferStatus;
-    }
-
-    public boolean isRequest() {
-        return isRequest;
-    }
-
-    public void setRequest(boolean request) {
-        isRequest = request;
-    }
+  public void setTransferType(String transferType) {
+    this.transferType = transferType;
+  }
 }

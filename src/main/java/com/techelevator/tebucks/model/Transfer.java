@@ -9,13 +9,7 @@ public class Transfer {
   private String transferStatus;
   private String transferType;
 
-  public Transfer(
-    int transferId,
-    int userFrom,
-    int userTo,
-    double amount,
-    String transferType
-  ) {
+  public Transfer(int transferId, int userFrom, int userTo, double amount, String transferType) {
     this.transferId = transferId;
     this.userFrom = userFrom;
     this.userTo = userTo;
@@ -33,20 +27,20 @@ public class Transfer {
     this.transferId = transferId;
   }
 
-  public int getAccountSending() {
-    return accountSending;
+  public int getUserFrom() {
+    return userFrom;
   }
 
   public void setUserFrom(int userFrom) {
     this.userFrom = userFrom;
   }
 
-  public int getAccountReceiving() {
-    return accountReceiving;
+  public int getUserTo() {
+    return userTo;
   }
 
-  public void setAccountReceiving(int accountReceiving) {
-    this.accountReceiving = accountReceiving;
+  public void setUserTo(int userTo) {
+    this.userTo = userTo;
   }
 
   public double getAmount() {

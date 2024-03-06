@@ -20,7 +20,7 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public List<Account> getAccounts() {
         List<Account> listOfAccounts = new ArrayList<>();
-        String sql = "select account_id, user_id, account_balance from account;";
+        String sql = "select account_id, user_id, balance from account;";
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
             while (results.next()) {
@@ -28,7 +28,7 @@ public class JdbcAccountDao implements AccountDao{
                 listOfAccounts.add(account);
             }
         } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database", e);
+            throw new DaoException("Unable to connect to server or database.", e);
         }
         return listOfAccounts;
     }
@@ -36,7 +36,7 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public Account getAccountById(int accountId) {
         Account account = null;
-        String sql = "select account_id, user_id, account_balance from account where account_id = ?;";
+        String sql = "select account_id, user_id, balance from account where account_id = ?;";
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
             if (results.next()) {
@@ -51,7 +51,7 @@ public class JdbcAccountDao implements AccountDao{
         Account account = new Account();
         account.setAccountId(results.getInt("account_id"));
         account.setUserId(results.getInt("user_id"));
-        account.setAccountBalance(results.getDouble("account_balance"));
+        account.setBalance(results.getDouble("balance"));
         return account;
     }
 }

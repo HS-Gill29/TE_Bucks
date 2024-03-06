@@ -59,7 +59,7 @@ public class JdbcTransferDao implements TransferDao{
     public List<Transfer> getTransfersByAccountId(int accountId) {
         List<Transfer> listOfTransfers = new ArrayList<>();
         String sql = "select transfer_id, account_sending_money, account_receiving_money," +
-                     "transfer_amount, transfer_status from transfer join where account_id = ;"
+                     "transfer_amount, transfer_status from transfer join where account_id = ;";
         try{
 
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
@@ -91,14 +91,16 @@ public class JdbcTransferDao implements TransferDao{
     @Override
     public Transfer updateTransfer(Transfer transfer) {
         Transfer updateTransfer = null;
-        String sql = "update transfer"
+        String sql = "update transfer";
+                return null;
     }
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(results.getInt("transfer_id"));
-        transfer.setAccountSending(results.getInt("account_sending_money"));
-        transfer.setAccountReceiving(results.getInt("account_receiving_money"));
-        transfer.setTransferAmount(results.getInt("transfer_amount"));
+        transfer.setUserFrom(results.getInt("user_from"));
+        transfer.setUserTo(results.getInt("user_to"));
+        transfer.setAmount(results.getInt("amount"));
+        transfer.setTransferType(results.getString("transfer_type"));
         transfer.setTransferStatus(results.getString("transfer_status"));
         return transfer;
     }

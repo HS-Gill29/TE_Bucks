@@ -19,6 +19,10 @@ public class Transfer {
         this.isRequest = isRequest;
     }
 
+    public Transfer() {
+
+    }
+
     public int getTransferId() {
         return transferId;
     }
@@ -28,19 +32,19 @@ public class Transfer {
     }
 
     public int getAccountSending() {
-        return accountSending;
+        return accountSendingMoney;
     }
 
     public void setAccountSending(int accountSending) {
-        this.accountSending = accountSending;
+        this.accountSendingMoney = accountSending;
     }
 
     public int getAccountReceiving() {
-        return accountReceiving;
+        return accountReceivingMoney;
     }
 
     public void setAccountReceiving(int accountReceiving) {
-        this.accountReceiving = accountReceiving;
+        this.accountReceivingMoney = accountReceiving;
     }
 
     public double getTransferAmount() {

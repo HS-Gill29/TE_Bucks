@@ -45,7 +45,7 @@ public class JdbcAccountDao implements AccountDao{
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         }
-        return null;
+        return account;
     }
     private Account mapRowToAccount(SqlRowSet results) {
         Account account = new Account();

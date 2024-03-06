@@ -17,15 +17,15 @@ CREATE TABLE users (
 CREATE TABLE account (
 	account_id SERIAL PRIMARY KEY,
 	user_id int NOT NULL REFERENCES users(user_id),
-	account_balance NUMERIC(20,2) NOT NULL DEFAULT (1000)
+	balance NUMERIC(20,2) NOT NULL DEFAULT (1000)
 );
 
 CREATE TABLE transfer (
 	transfer_id SERIAL PRIMARY KEY,
-	account_sending_money int NOT NULL REFERENCES account(account_id),
-	account_receiving_money int NOT NULL REFERENCES account(account_id),
-	account_initiating_transfer int NOT NULL REFERENCES account(account_id),
-	transfer_amount NUMERIC(6,2) CHECK (transfer_amount > 0),
+	user_from int NOT NULL REFERENCES account(account_id),
+	user_to int NOT NULL REFERENCES account(account_id),
+	amount NUMERIC(6,2) CHECK (amount > 0),
+	transfer_type VARCHAR(10) NOT NULL CHECK (transfer_type IN ('Send', 'Request')),
 	transfer_status VARCHAR(10) NOT NULL CHECK (transfer_status IN ('Approved', 'Pending', 'Rejected'))
 );
 

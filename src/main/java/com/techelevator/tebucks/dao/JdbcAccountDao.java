@@ -2,13 +2,16 @@ package com.techelevator.tebucks.dao;
 
 import com.techelevator.tebucks.exception.DaoException;
 import com.techelevator.tebucks.model.Account;
+import com.techelevator.tebucks.security.model.User;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-
+@Component
 public class JdbcAccountDao implements AccountDao{
 
     private final JdbcTemplate jdbcTemplate;
@@ -16,6 +19,7 @@ public class JdbcAccountDao implements AccountDao{
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
 
     @Override
     public List<Account> getAccounts() {
@@ -47,6 +51,22 @@ public class JdbcAccountDao implements AccountDao{
         }
         return account;
     }
+
+    @Override
+    public Account createAccount(int userId) {
+        Account accountCreated = null;
+        String sql = "insert into account (user_id) values (?);";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql,userId);
+            if (results.next()) {
+                accountCreated = mapRowToAccount(results);
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        return accountCreated;
+    }
+
     private Account mapRowToAccount(SqlRowSet results) {
         Account account = new Account();
         account.setAccountId(results.getInt("account_id"));

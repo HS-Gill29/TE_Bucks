@@ -90,9 +90,6 @@ public class JdbcTransferDao implements TransferDao {
                     transferToSend.getTransferType(),
                     transferStatus);
 
-            String updateSql = "update account set balance = balance - ? where user_id = ?";
-            jdbcTemplate.update(updateSql,transferToSend.getAmount(),transferToSend.getUserFrom());
-
             transfer = getTransferById(transferId);
 
         } catch (CannotGetJdbcConnectionException e) {
@@ -115,8 +112,6 @@ public class JdbcTransferDao implements TransferDao {
                     transferToRequest.getAmount(),
                     transferStatus,
                     transferToRequest.getTransferType());
-            String updateSql = "update account set balance = balance - ? where user_id = ?";
-            jdbcTemplate.update(updateSql,transferToRequest.getAmount(), transferToRequest.getUserFrom());
 
             transfer = getTransferById(transferId);
 

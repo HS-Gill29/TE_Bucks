@@ -15,4 +15,7 @@ public interface AccountDao {
 
     Account getAccountByUserId(int userId);
 
+    Account addToAccountBalance(int userId, double amountToAdd);
+    Account subtractFromAccountBalance(int userId, double amountToSubtract);
+
 }

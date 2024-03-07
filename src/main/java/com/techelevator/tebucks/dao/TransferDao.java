@@ -12,7 +12,9 @@ public interface TransferDao {
 
     List<Transfer> getTransfersByAccountId(int accountId);
 
-    Transfer createTransfer(double transferAmount, Account secondAccountInvolvedInTransfer);
+    Transfer sendTransfer(Transfer transfer);
+
+    Transfer requestTransfer(Transfer transfer);
 
     Transfer updateTransfer(int transferId);
 }

@@ -15,6 +15,7 @@ public interface AccountDao {
 
     Account getAccountByUserId(int userId);
 
-    Account updateAccountBalance(double amountToAddOrWithdraw);
+    Account addToAccountBalance(int userId, double amountToAdd);
+    Account subtractFromAccountBalance(int userId, double amountToSubtract);
 
 }

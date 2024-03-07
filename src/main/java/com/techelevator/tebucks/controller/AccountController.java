@@ -66,15 +66,17 @@ public class AccountController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/transfers")
-    public Transfer createTransfer(
-            @Valid @RequestBody NewTransferDto newTransferDto
-    ) {
+    public Transfer createTransfer(@Valid @RequestBody NewTransferDto newTransferDto) {
         Transfer newTransfer = null;
+        int userFromId = newTransferDto.getUserFrom();
+        int userToId = newTransferDto.getUserTo();
+        double amountToTransfer = newTransferDto.getAmount();
         if (newTransferDto.getTransferType().equals("Send")) {
-            int userFromId = newTransferDto.getUserFrom();
             Account account = accountDao.getAccountByUserId(userFromId);
-            if (account.getBalance() >= newTransferDto.getAmount()) {
+            if (account.getBalance() >= amountToTransfer) {
                 newTransfer = transferDao.sendTransfer(newTransferDto);
+                accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
+                accountDao.addToAccountBalance(userToId, amountToTransfer);
             }
         } else {
             newTransfer = transferDao.requestTransfer(newTransferDto);
@@ -82,10 +84,10 @@ public class AccountController {
         return newTransfer;
     }
 
-    @GetMapping("/api/account/transfers")
-    public List<Transfer> getListOfTransfers() {
-
-    }
+//    @GetMapping("/api/account/transfers")
+//    public List<Transfer> getListOfTransfers() {
+//
+//    }
 
 
 }

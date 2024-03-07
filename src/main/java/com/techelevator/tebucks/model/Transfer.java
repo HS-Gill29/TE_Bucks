@@ -1,10 +1,14 @@
 package com.techelevator.tebucks.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+
 public class Transfer {
 
   private int transferId;
   private int userFrom;
   private int userTo;
+  @Positive(message = "Amount must be greater than 0.")
   private double amount;
   private String transferStatus;
   private String transferType;

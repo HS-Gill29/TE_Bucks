@@ -2,7 +2,9 @@ package com.techelevator.tebucks.dao;
 
 import com.techelevator.tebucks.exception.DaoException;
 import com.techelevator.tebucks.model.Account;
+import com.techelevator.tebucks.model.NewTransferDto;
 import com.techelevator.tebucks.model.Transfer;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -41,15 +43,19 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer getTransferById(int transferId) {
-        Transfer transfer = new Transfer();
-        String sql = "select transfer_id, user_from, user_to," +
-                "amount, transfer_status from transfer " +
-                "where transfer_id = ?;";
+        Transfer transfer = null;
+        String sql = "select transfer_id, user_from, user_to, amount, transfer_status from transfer where transfer_id = ?;";
         try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, transferId);
-            transfer = mapRowToTransfer(rowSet);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+            if (results.next()) {
+                transfer = mapRowToTransfer(results);
+            }
+
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database.", e);
+        }
+        if (transfer == null) {
+            throw new DaoException("Transfer not found.");
         }
         return transfer;
     }
@@ -73,15 +79,16 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public Transfer sendTransfer(Transfer transferToSend) {
+    public Transfer sendTransfer(NewTransferDto transferToSend) {
         Transfer transfer = null;
-        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) VALUES (?,?,?,?,?) RETURNING transfer_id;";
+        String transferStatus = "Approved";
+        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status) VALUES (?,?,?,?,?) RETURNING transfer_id;";
         try {
             int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToSend.getUserFrom(),
                     transferToSend.getUserTo(),
                     transferToSend.getAmount(),
-                    transferToSend.getTransferStatus(),
-                    transferToSend.getTransferType());
+                    transferToSend.getTransferType(),
+                    transferStatus);
 
             transfer = getTransferById(transferId);
 
@@ -95,20 +102,23 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public Transfer requestTransfer(Transfer transferToRequest) {
+    public Transfer requestTransfer(NewTransferDto transferToRequest) {
         Transfer transfer = null;
+        String transferStatus = "Pending";
         String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) VALUES (?,?,?,?,?) RETURNING transfer_id;";
         try {
             int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToRequest.getUserFrom(),
                     transferToRequest.getUserTo(),
                     transferToRequest.getAmount(),
-                    transferToRequest.getTransferStatus(),
+                    transferStatus,
                     transferToRequest.getTransferType());
 
             transfer = getTransferById(transferId);
 
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database.", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
         }
         if (transfer == null) {
             throw new DaoException("Transfer not successful.");
@@ -139,7 +149,7 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setTransferId(results.getInt("transfer_id"));
         transfer.setUserFrom(results.getInt("user_from"));
         transfer.setUserTo(results.getInt("user_to"));
-        transfer.setAmount(results.getInt("amount"));
+        transfer.setAmount(results.getDouble("amount"));
         transfer.setTransferType(results.getString("transfer_type"));
         transfer.setTransferStatus(results.getString("transfer_status"));
         return transfer;

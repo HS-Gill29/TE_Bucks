@@ -12,4 +12,6 @@ public interface UserDao {
     User createUser(RegisterUserDto user);
 
     List<User> getAllUsers();
+
+    User getUserById(int userId);
 }

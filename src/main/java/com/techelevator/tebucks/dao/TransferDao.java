@@ -14,5 +14,5 @@ public interface TransferDao {
 
     Transfer createTransfer(double transferAmount, Account secondAccountInvolvedInTransfer);
 
-    Transfer updateTransfer(Transfer transfer);
+    Transfer updateTransfer(int transferId);
 }

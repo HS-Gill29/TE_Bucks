@@ -9,9 +9,9 @@ public interface AccountDao {
 
     List<Account> getAccounts();
 
-    Account getAccountByUserId(int userId);
+    Account getAccountByAccountId(int accountId);
 
     Account createAccount(int userId);
 
-    Account getAccountByAccountId(int accountId);
+    Account getAccountByUserId(int userId);
 }

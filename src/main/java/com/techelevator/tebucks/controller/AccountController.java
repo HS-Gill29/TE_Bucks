@@ -27,7 +27,8 @@ public class AccountController {
     @GetMapping(path = "/api/account/balance")
     public Account getAccount(Principal principal){
         String username = principal.getName();
-       User user = userDao.getUserByUsername(username);
-        return accountDao.getAccountByUserId(user.getId());
+        User userToCreateAccountFor = userDao.getUserByUsername(username);
+        int userId = userToCreateAccountFor.getId();
+        return accountDao.getAccountByUserId(userId);
     }
 }

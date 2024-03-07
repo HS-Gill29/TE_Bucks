@@ -56,6 +56,7 @@ public class JdbcUserDao implements UserDao {
         // create user
         String sql = "INSERT INTO users (username, password_hash, first_name, last_name, email) VALUES (TRIM(?), ?, ?, ?, ?) RETURNING user_id";
         String passwordHash = new BCryptPasswordEncoder().encode(user.getPassword());
+        String sqlAccount = "INSERT INTO account (user_id) VALUES (?) RETURNING account_id;";
         try {
             Integer newUserId = jdbcTemplate.queryForObject(sql, int.class,
                     user.getUsername(),
@@ -64,12 +65,13 @@ public class JdbcUserDao implements UserDao {
                     user.getLastName(),
                     user.getEmail());
 
+            Integer newAccountId = jdbcTemplate.queryForObject(sqlAccount, int.class, newUserId);
             if (newUserId == null) {
                 throw new DaoException("Could not create user");
             }
-
-            // TODO: Create account for the user with a starting balance of $1000
-//            accountDao.createAccount(newUserId);
+            if (newAccountId == null) {
+                throw new DaoException("Could not create account");
+            }
 
             return getUserById(newUserId);
         } catch (CannotGetJdbcConnectionException e) {

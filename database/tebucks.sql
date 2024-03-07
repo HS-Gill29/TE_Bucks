@@ -22,8 +22,8 @@ CREATE TABLE account (
 
 CREATE TABLE transfer (
 	transfer_id SERIAL PRIMARY KEY,
-	user_from int NOT NULL REFERENCES account(account_id),
-	user_to int NOT NULL REFERENCES account(account_id),
+	user_from int NOT NULL REFERENCES users (user_id),
+	user_to int NOT NULL REFERENCES users (user_id),
 	amount NUMERIC(6,2) CHECK (amount > 0),
 	transfer_type VARCHAR(10) NOT NULL CHECK (transfer_type IN ('Send', 'Request')),
 	transfer_status VARCHAR(10) NOT NULL CHECK (transfer_status IN ('Approved', 'Pending', 'Rejected'))

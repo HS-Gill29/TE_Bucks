@@ -4,6 +4,7 @@ import com.techelevator.tebucks.exception.DaoException;
 import com.techelevator.tebucks.model.Account;
 import com.techelevator.tebucks.model.NewTransferDto;
 import com.techelevator.tebucks.model.Transfer;
+import com.techelevator.tebucks.model.TransferStatusUpdateDto;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,13 +24,11 @@ public class JdbcTransferDao implements TransferDao {
 
 
     @Override
-    public List<Transfer> getTransfers() {
+    public List<Transfer> getTransfersByUserId(int userId) {
         List<Transfer> transfers = new ArrayList<>();
-        String sql = "select transfer_id, user_from, user_to," +
-                "amount, transfer_status from transfer;";
+        String sql = "select * from transfer where user_from = ? or user_to = ?;";
         try {
-
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
             while (results.next()) {
                 Transfer transfer = mapRowToTransfer(results);
                 transfers.add(transfer);
@@ -60,23 +59,22 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 
-    @Override
-    public List<Transfer> getTransfersByAccountId(int accountId) {
-        List<Transfer> listOfTransfers = new ArrayList<>();
-        String sql = "select transfer_id, user_from, user_to," +
-                "amount, transfer_status from transfer join where account_id = ;";
-        try {
-
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-            while (results.next()) {
-                Transfer transfer = mapRowToTransfer(results);
-                listOfTransfers.add(transfer);
-            }
-        } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database.", e);
-        }
-        return listOfTransfers;
-    }
+//    @Override
+//    public List<Transfer> getTransfersByUserId(int userId) {
+//        List<Transfer> listOfTransfers = new ArrayList<>();
+//        String sql = "select * from transfer where account_id = ?;";
+//        try {
+//
+//            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+//            while (results.next()) {
+//                Transfer transfer = mapRowToTransfer(results);
+//                listOfTransfers.add(transfer);
+//            }
+//        } catch (CannotGetJdbcConnectionException e) {
+//            throw new DaoException("Unable to connect to server or database.", e);
+//        }
+//        return listOfTransfers;
+//    }
 
     @Override
     public Transfer sendTransfer(NewTransferDto transferToSend) {
@@ -127,12 +125,12 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public Transfer updateTransfer(int transferId) {
+    public Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId) {
         Transfer transferToUpdate = null;
         String sql = "update transfer " +
                 "set transfer_status = ? where transfer_id = ?; ";
         try {
-            int numberOfRows = jdbcTemplate.update(sql, transferId);
+            int numberOfRows = jdbcTemplate.update(sql, transferStatusUpdateDto.getTransferStatus(), transferId);
             if (numberOfRows > 0) {
                 transferToUpdate = getTransferById(transferId);
                 return transferToUpdate;

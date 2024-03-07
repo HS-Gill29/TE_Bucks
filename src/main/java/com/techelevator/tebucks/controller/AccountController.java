@@ -6,6 +6,7 @@ import com.techelevator.tebucks.exception.DaoException;
 import com.techelevator.tebucks.model.Account;
 import com.techelevator.tebucks.model.NewTransferDto;
 import com.techelevator.tebucks.model.Transfer;
+import com.techelevator.tebucks.model.TransferStatusUpdateDto;
 import com.techelevator.tebucks.security.dao.UserDao;
 import com.techelevator.tebucks.security.model.User;
 
@@ -18,8 +19,11 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+
+@PreAuthorize("isAuthenticated()")
 @RestController
 public class AccountController {
 
@@ -46,22 +50,15 @@ public class AccountController {
         return accountDao.getAccountByUserId(userId);
     }
 
-    @GetMapping(path = "/api/users")
-    public List<User> getUsers(Principal principal) {
-        String username = principal.getName();
-        User userPrincipal = userDao.getUserByUsername(username);
-        int userId = userPrincipal.getId();
-        List<User> listOfUsers = userDao.getAllUsers();
-        List<User> listOfUsersWithoutPrincipal = new ArrayList<>();
-        for (User user : listOfUsers) {
-            if (user.getId() != userId) {
-                listOfUsersWithoutPrincipal.add(user);
-            }
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/api/transfers/{id}")
+    public Transfer getTransferById(@PathVariable int id) {
+        Transfer transferById = transferDao.getTransferById(id);
+        if (transferById == null) {
+            throw new DaoException("Transfer not found.");
+        } else {
+            return transferById;
         }
-        if (listOfUsersWithoutPrincipal == null) {
-            throw new DaoException("Can not formulate user list.");
-        }
-        return listOfUsersWithoutPrincipal;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -84,10 +81,42 @@ public class AccountController {
         return newTransfer;
     }
 
-//    @GetMapping("/api/account/transfers")
-//    public List<Transfer> getListOfTransfers() {
-//
-//    }
+    @PutMapping("/api/transfers/{id}/status")
+    public Transfer updateTransferStatus(@PathVariable int id, @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {
+        return transferDao.updateTransfer(transferStatusUpdateDto, id);
 
+    }
+
+    @GetMapping(path = "/api/users")
+    public List<User> getUsers(Principal principal) {
+        int userId = getUserIdFromPrincipal(principal);
+        List<User> listOfUsers = userDao.getAllUsers();
+        List<User> listOfUsersWithoutPrincipal = new ArrayList<>();
+        for (User user : listOfUsers) {
+            if (user.getId() != userId) {
+                listOfUsersWithoutPrincipal.add(user);
+            }
+        }
+        if (listOfUsersWithoutPrincipal == null) {
+            throw new DaoException("Can not formulate user list.");
+        }
+        return listOfUsersWithoutPrincipal;
+    }
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/api/account/transfers")
+    public List<Transfer> getListOfTransfers(Principal principal) {
+        int userId = getUserIdFromPrincipal(principal);
+        List<Transfer> listOfTransfers = transferDao.getTransfersByUserId(userId);
+        return listOfTransfers;
+    }
+
+    private int getUserIdFromPrincipal(Principal principal) {
+        String username = principal.getName();
+        User userPrincipal = userDao.getUserByUsername(username);
+        int userId = userPrincipal.getId();
+        return userId;
+    }
 
 }

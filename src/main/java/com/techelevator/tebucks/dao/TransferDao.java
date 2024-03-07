@@ -17,5 +17,6 @@ public interface TransferDao {
 
     Transfer requestTransfer(NewTransferDto newTransferDto);
 
+
     Transfer updateTransfer(int transferId);
 }

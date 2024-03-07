@@ -29,7 +29,7 @@ public class AccountController {
         String username = principal.getName();
         User userToCreateAccountFor = userDao.getUserByUsername(username);
         int userId = userToCreateAccountFor.getId();
-        return accountDao.getAccountById(userId);
+        return accountDao.getAccountByUserId(userId);
     }
 
 //    Account newAccount = accountDao.createAccount(userId);

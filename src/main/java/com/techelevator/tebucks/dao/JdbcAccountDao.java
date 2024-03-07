@@ -38,7 +38,7 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public Account getAccountById(int accountId) {
+    public Account getAccountByAccountId(int accountId) {
         Account account = null;
         String sql = "select account_id, user_id, balance from account where account_id = ?;";
         try {

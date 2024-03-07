@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 public class AccountController {
@@ -31,4 +32,6 @@ public class AccountController {
         int userId = userToCreateAccountFor.getId();
         return accountDao.getAccountByUserId(userId);
     }
+
+
 }

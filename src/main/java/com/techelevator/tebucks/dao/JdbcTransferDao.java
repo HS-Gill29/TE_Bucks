@@ -73,17 +73,45 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public Transfer createTransfer(double transferAmount, Account secondAccountInvolvedInTransfer) {
+    public Transfer sendTransfer(Transfer transferToSend) {
         Transfer transfer = null;
-        String sql = "select transfer_id, user_from, user_to," +
-                "amount, transfer_status from transfer " +
-                "where amount = ?;";
+        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) VALUES (?,?,?,?,?) RETURNING transfer_id;";
         try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, transferAmount);
-            transfer = mapRowToTransfer(rowSet);
+            int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToSend.getUserFrom(),
+                    transferToSend.getUserTo(),
+                    transferToSend.getAmount(),
+                    transferToSend.getTransferStatus(),
+                    transferToSend.getTransferType());
+
+            transfer = getTransferById(transferId);
 
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database.", e);
+        }
+        if (transfer == null) {
+            throw new DaoException("Transfer not successful.");
+        }
+        return transfer;
+    }
+
+    @Override
+    public Transfer requestTransfer(Transfer transferToRequest) {
+        Transfer transfer = null;
+        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) VALUES (?,?,?,?,?) RETURNING transfer_id;";
+        try {
+            int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToRequest.getUserFrom(),
+                    transferToRequest.getUserTo(),
+                    transferToRequest.getAmount(),
+                    transferToRequest.getTransferStatus(),
+                    transferToRequest.getTransferType());
+
+            transfer = getTransferById(transferId);
+
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database.", e);
+        }
+        if (transfer == null) {
+            throw new DaoException("Transfer not successful.");
         }
         return transfer;
     }

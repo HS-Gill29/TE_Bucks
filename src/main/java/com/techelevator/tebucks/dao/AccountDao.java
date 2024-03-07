@@ -14,4 +14,5 @@ public interface AccountDao {
 //    Account createAccount(int userId);
 
     Account getAccountByUserId(int userId);
+
 }

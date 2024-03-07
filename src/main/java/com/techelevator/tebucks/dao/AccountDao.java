@@ -15,4 +15,6 @@ public interface AccountDao {
 
     Account getAccountByUserId(int userId);
 
+    Account updateAccountBalance(double amountToAddOrWithdraw);
+
 }

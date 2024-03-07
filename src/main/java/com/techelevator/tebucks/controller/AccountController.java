@@ -70,4 +70,10 @@ public class AccountController {
         return newTransfer;
     }
 
+    @GetMapping("/api/account/transfers")
+    public List<Transfer> getListOfTransfers() {
+
+    }
+
+
 }

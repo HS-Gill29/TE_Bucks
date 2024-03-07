@@ -52,6 +52,15 @@ public class JdbcAccountDao implements AccountDao{
         return account;
     }
 
+    @Override
+    public Account updateAccountBalance(int accountId, double amountToAddOrWithdraw) {
+        Account account = null;
+        String sql = "UPDATE account SET balance = balance + ? where account_id = ?";
+        try {
+            SqlRowSet results = jdbcTemplate.
+        }
+    }
+
 //    @Override
 //    public Account createAccount(int userId) {
 //        Account accountCreated = null;

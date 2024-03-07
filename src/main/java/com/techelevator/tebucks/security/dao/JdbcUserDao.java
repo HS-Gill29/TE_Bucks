@@ -11,6 +11,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class JdbcUserDao implements UserDao {
     private  AccountDao accountDao;
@@ -21,6 +24,21 @@ public class JdbcUserDao implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public List<User> getAllUsers() {
+        List<User> allUsers = new ArrayList<>();
+        String sql = "SELECT user_id, username, password_hash, first_name, last_name, email FROM users;";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+            while (results.next()) {
+                User user = mapRowToUser(results);
+                allUsers.add(user);
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        return allUsers;
+    }
     public User getUserById(int userId) {
         User user = null;
         String sql = "SELECT user_id, username, password_hash, first_name, last_name, email FROM users WHERE user_id = ?";

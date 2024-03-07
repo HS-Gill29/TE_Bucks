@@ -53,6 +53,7 @@ public class AccountController {
         return listOfUsersWithoutPrincipal;
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/transfers")
     public Transfer createTransfer(@Valid @RequestBody NewTransferDto newTransferDto) {
         Transfer newTransfer = null;

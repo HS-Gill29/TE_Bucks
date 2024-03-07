@@ -44,7 +44,7 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public Transfer getTransferById(int transferId) {
         Transfer transfer = null;
-        String sql = "select transfer_id, user_from, user_to, amount, transfer_status from transfer where transfer_id = ?;";
+        String sql = "select transfer_id, user_from, user_to, amount, transfer_type, transfer_status from transfer where transfer_id = ?;";
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
             if (results.next()) {

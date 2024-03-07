@@ -1,5 +1,6 @@
 package com.techelevator.tebucks.security.dao;
 
+import com.techelevator.tebucks.dao.AccountDao;
 import com.techelevator.tebucks.exception.DaoException;
 import com.techelevator.tebucks.security.model.RegisterUserDto;
 import com.techelevator.tebucks.security.model.User;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JdbcUserDao implements UserDao {
+    private  AccountDao accountDao;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -67,6 +69,7 @@ public class JdbcUserDao implements UserDao {
             }
 
             // TODO: Create account for the user with a starting balance of $1000
+//            accountDao.createAccount(newUserId);
 
             return getUserById(newUserId);
         } catch (CannotGetJdbcConnectionException e) {

@@ -39,6 +39,7 @@ public class JdbcUserDao implements UserDao {
         }
         return allUsers;
     }
+    @Override
     public User getUserById(int userId) {
         User user = null;
         String sql = "SELECT user_id, username, password_hash, first_name, last_name, email FROM users WHERE user_id = ?";

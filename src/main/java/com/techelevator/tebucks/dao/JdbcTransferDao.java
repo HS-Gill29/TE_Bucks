@@ -1,10 +1,12 @@
 package com.techelevator.tebucks.dao;
 
 import com.techelevator.tebucks.exception.DaoException;
+import com.techelevator.tebucks.security.model.User;
 import com.techelevator.tebucks.model.Account;
 import com.techelevator.tebucks.model.NewTransferDto;
 import com.techelevator.tebucks.model.Transfer;
 import com.techelevator.tebucks.model.TransferStatusUpdateDto;
+import com.techelevator.tebucks.security.dao.UserDao;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,18 +19,23 @@ import java.util.List;
 @Component
 public class JdbcTransferDao implements TransferDao {
     private final JdbcTemplate jdbcTemplate;
+    private UserDao userDao;
+    private AccountDao accountDao;
 
-    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate, UserDao userDao, AccountDao accountDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userDao = userDao;
+        this.accountDao = accountDao;
     }
 
 
     @Override
-    public List<Transfer> getTransfersByUserId(int userId) {
+    public List<Transfer> getTransfers(int userFromId, int userToId) {
         List<Transfer> transfers = new ArrayList<>();
+        String sqlForUser = "select * from users where user_id = ?;";
         String sql = "select * from transfer where user_from = ? or user_to = ?;";
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId, userId);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userFromId, userToId);
             while (results.next()) {
                 Transfer transfer = mapRowToTransfer(results);
                 transfers.add(transfer);
@@ -127,8 +134,7 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId) {
         Transfer transferToUpdate = null;
-        String sql = "update transfer " +
-                "set transfer_status = ? where transfer_id = ?; ";
+        String sql = "update transfer set transfer_status = ? where transfer_id = ?;";
         try {
             int numberOfRows = jdbcTemplate.update(sql, transferStatusUpdateDto.getTransferStatus(), transferId);
             if (numberOfRows > 0) {
@@ -145,11 +151,12 @@ public class JdbcTransferDao implements TransferDao {
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(results.getInt("transfer_id"));
-        transfer.setUserFrom(results.getInt("user_from"));
-        transfer.setUserTo(results.getInt("user_to"));
+        transfer.setUserFrom(userDao.getUserById(results.getInt("user_from")));
+        transfer.setUserTo(userDao.getUserById(results.getInt("user_to")));
         transfer.setAmount(results.getDouble("amount"));
         transfer.setTransferType(results.getString("transfer_type"));
         transfer.setTransferStatus(results.getString("transfer_status"));
+
         return transfer;
     }
 }

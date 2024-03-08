@@ -8,7 +8,7 @@ import com.techelevator.tebucks.model.TransferStatusUpdateDto;
 import java.util.List;
 
 public interface TransferDao {
-    List<Transfer> getTransfersByUserId(int userId);
+    List<Transfer> getTransfers(int userFromId, int userToId);
 
     Transfer getTransferById(int transferId);
 

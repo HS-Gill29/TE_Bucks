@@ -168,27 +168,18 @@ public class JdbcTransferDao implements TransferDao {
   }
 
   @Override
-  public Transfer updateTransfer(
-    TransferStatusUpdateDto transferStatusUpdateDto,
-    int transferId
-  ) {
+  public Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId) {
     Transfer transferToUpdate = null;
-    String sql =
-      "update transfer set transfer_status = ? where transfer_id = ?;";
+    String sql = "update transfer set transfer_status = ? where transfer_id = ?;";
     try {
       String newStatus = transferStatusUpdateDto.getTransferStatus();
 
-      if (!newStatus.equals("APPROVED") && !newStatus.equals("REJECTED")) {
-        throw new IllegalArgumentException("Invalid transfer status");
-      }
       int numberOfRows = jdbcTemplate.update(sql, newStatus, transferId);
       if (numberOfRows > 0) {
         transferToUpdate = getTransferById(transferId);
         return transferToUpdate;
       } else {
-        throw new RuntimeException(
-          "No rows were affected by the update operation."
-        );
+        throw new RuntimeException("No rows were affected by the update operation.");
       }
     } catch (CannotGetJdbcConnectionException e) {
       throw new DaoException("Unable to connect to server or database.", e);

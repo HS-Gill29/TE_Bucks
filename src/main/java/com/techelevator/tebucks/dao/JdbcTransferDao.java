@@ -5,6 +5,7 @@ import com.techelevator.tebucks.model.Account;
 import com.techelevator.tebucks.model.NewTransferDto;
 import com.techelevator.tebucks.model.Transfer;
 import com.techelevator.tebucks.model.TransferStatusUpdateDto;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,9 +18,11 @@ import java.util.List;
 @Component
 public class JdbcTransferDao implements TransferDao {
     private final JdbcTemplate jdbcTemplate;
+    private AccountDao accountDao;
 
-    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate, AccountDao accountDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.accountDao = accountDao;
     }
 
 
@@ -52,6 +55,8 @@ public class JdbcTransferDao implements TransferDao {
 
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database.", e);
+        } catch (DataAccessException e) {
+            throw new DaoException("Error while accessing database.", e);
         }
         if (transfer == null) {
             throw new DaoException("Transfer not found.");
@@ -78,9 +83,17 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer sendTransfer(NewTransferDto transferToSend) {
+        if (transferToSend.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
+        if (transferToSend.getUserFrom() == transferToSend.getUserTo()) {
+            throw new IllegalArgumentException("Cannot send transfer to yourself");
+        }
         Transfer transfer = null;
         String transferStatus = "Approved";
-        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status) VALUES (?,?,?,?,?) RETURNING transfer_id;";
+        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status) " +
+                      "VALUES (?,?,?,?,?) RETURNING transfer_id;";
         try {
             int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToSend.getUserFrom(),
                     transferToSend.getUserTo(),
@@ -101,9 +114,18 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer requestTransfer(NewTransferDto transferToRequest) {
+        if (transferToRequest.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
+        if (transferToRequest.getUserFrom() == transferToRequest.getUserTo()) {
+            throw new IllegalArgumentException("Cannot request transfer from yourself");
+        }
+
         Transfer transfer = null;
         String transferStatus = "Pending";
-        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) VALUES (?,?,?,?,?) RETURNING transfer_id;";
+        String sql = "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) " +
+                       "VALUES (?,?,?,?,?) RETURNING transfer_id;";
         try {
             int transferId = jdbcTemplate.queryForObject(sql, int.class, transferToRequest.getUserFrom(),
                     transferToRequest.getUserTo(),
@@ -124,13 +146,21 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 
+
+
+
     @Override
     public Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId) {
         Transfer transferToUpdate = null;
         String sql = "update transfer " +
                 "set transfer_status = ? where transfer_id = ?; ";
         try {
-            int numberOfRows = jdbcTemplate.update(sql, transferStatusUpdateDto.getTransferStatus(), transferId);
+            String newStatus = transferStatusUpdateDto.getTransferStatus();
+
+            if (!newStatus.equals("APPROVED") && !newStatus.equals("REJECTED")) {
+                throw new IllegalArgumentException("Invalid transfer status");
+            }
+            int numberOfRows = jdbcTemplate.update(sql, newStatus, transferId);
             if (numberOfRows > 0) {
                 transferToUpdate = getTransferById(transferId);
                 return transferToUpdate;
@@ -141,6 +171,8 @@ public class JdbcTransferDao implements TransferDao {
             throw new DaoException("Unable to connect to server or database.", e);
         }
     }
+
+
 
     private Transfer mapRowToTransfer(SqlRowSet results) {
         Transfer transfer = new Transfer();

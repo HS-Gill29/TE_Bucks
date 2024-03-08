@@ -16,7 +16,6 @@ import java.util.List;
 
 @Component
 public class JdbcUserDao implements UserDao {
-    private  AccountDao accountDao;
 
     private final JdbcTemplate jdbcTemplate;
 

@@ -60,7 +60,7 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/transfers")
     public Transfer createTransfer(@Valid @RequestBody NewTransferDto newTransferDto) {
-        Transfer newTransfer = null;
+        Transfer newTransfer = new Transfer();
         int userFromId = newTransferDto.getUserFrom();
         int userToId = newTransferDto.getUserTo();
         double amountToTransfer = newTransferDto.getAmount();
@@ -71,12 +71,14 @@ public class AccountController {
 
             if (account.getBalance() >= amountToTransfer) {
                 newTransfer = transferDao.sendTransfer(newTransferDto);
-                accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
-                accountDao.addToAccountBalance(userToId, amountToTransfer);
 
                 if (amountToTransfer >= 1000) {
                     tearsService.logTransfer(mapTransferToTearsTransferDto(newTransfer));
                 }
+                accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
+                accountDao.addToAccountBalance(userToId, amountToTransfer);
+
+
             } else {
                 Transfer transferToLog = new Transfer();
                 transferToLog.setTransferStatus("Rejected");
@@ -84,7 +86,7 @@ public class AccountController {
                 transferToLog.setUserTo(userDao.getUserById(userToId));
                 transferToLog.setTransferType(newTransferDto.getTransferType());
                 transferToLog.setAmount(amountToTransfer);
-                transferToLog.setTransferId(0);
+                transferToLog.setTransferId(99);
 
                 tearsService.logTransfer(mapTransferToTearsTransferDto(transferToLog));
                 throw new DaoException("Insufficient funds.");
@@ -168,7 +170,7 @@ public class AccountController {
 
         if (transfer.getAmount() >= 1000 && transfer.getAmount() > userFromAccount.getBalance()) {
             transferToLog.setDescription("Transfer is $1,000 or more and attempted transfer overdraws account.");
-        }else if (transfer.getAmount() > userFromAccount.getBalance()) {
+        } else if (transfer.getAmount() > userFromAccount.getBalance()) {
             transferToLog.setDescription("Attempted transfer overdraws account.");
         } else if (transfer.getAmount() >= 1000) {
             transferToLog.setDescription("Transfer is $1,000 or more.");

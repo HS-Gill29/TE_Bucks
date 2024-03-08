@@ -1,12 +1,17 @@
 package com.techelevator.tebucks.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class TearsTransferResponseDto {
     private String description;
+    @JsonProperty("username_from")
     private String usernameFrom;
+    @JsonProperty("username_to")
     private String usernameTo;
     private double amount;
+    @JsonProperty("log_id")
     private int logId;
     private LocalDateTime createdDate;
 

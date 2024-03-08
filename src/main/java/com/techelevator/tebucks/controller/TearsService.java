@@ -15,7 +15,7 @@ import java.util.Map;
 public class TearsService {
 
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
 
 
     private final String TEARS_BASE_URL = "https://tears.azurewebsites.net";

@@ -52,10 +52,17 @@ public class AccountController {
         Transfer transferById = transferDao.getTransferById(id);
         if (transferById == null) {
             throw new DaoException("Transfer not found.");
-        } else {
-            return transferById;
         }
+        return transferById;
     }
+
+//    @GetMapping("/api/account/transfers")
+//    public List<Transfer>getTransfer(Principal principal){
+//        String username = principal.getName();
+//        return transferDao.getTransferByUsername(username);
+//    }
+
+
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/transfers")
@@ -71,11 +78,12 @@ public class AccountController {
                 accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
                 accountDao.addToAccountBalance(userToId, amountToTransfer);
             }
-        } else {
+        } else if (newTransferDto.getTransferType().equals("Request")){
             newTransfer = transferDao.requestTransfer(newTransferDto);
         }
         return newTransfer;
     }
+
 
     @PutMapping("/api/transfers/{id}/status")
     public Transfer updateTransferStatus(@PathVariable int id, @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {

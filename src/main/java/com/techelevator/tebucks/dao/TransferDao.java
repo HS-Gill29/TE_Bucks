@@ -20,4 +20,5 @@ public interface TransferDao {
 
 
     Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId);
+
 }

@@ -1,7 +1,6 @@
 package com.techelevator.tebucks.model;
 
 public class TearsCredentialsDto {
-
     String username;
     String password;
 

@@ -1,5 +1,6 @@
 package com.techelevator.tebucks.controller;
 
+import com.techelevator.tebucks.model.TearsCredentialsDto;
 import com.techelevator.tebucks.model.TransactionLog;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,17 +15,18 @@ import java.util.Map;
 public class TearsService {
 
 
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
 
 
     private final String TEARS_BASE_URL = "https://tears.azurewebsites.net";
     private final String LOGIN_ENDPOINT = "/login";
     private final String LOG_TRANSACTION_ENDPOINT = "/logTransaction";
 
-    public String authenticateWithTears(String username, String password) {
+    public String authenticateWithTears(TearsCredentialsDto tearsCredentialsDto) {
         String loginUrl = TEARS_BASE_URL + LOGIN_ENDPOINT;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("username", username);
         requestBody.put("password", password);

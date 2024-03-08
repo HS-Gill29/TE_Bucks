@@ -1,19 +1,21 @@
 package com.techelevator.tebucks.model;
 
+import com.techelevator.tebucks.security.model.User;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 
 public class Transfer {
 
   private int transferId;
-  private int userFrom;
-  private int userTo;
+  private User userFrom;
+  private User userTo;
   @Positive(message = "Amount must be greater than 0.")
   private double amount;
   private String transferStatus;
   private String transferType;
 
-  public Transfer(int transferId, int userFrom, int userTo, double amount, String transferType) {
+  public Transfer(int transferId, User userFrom, User userTo, double amount, String transferType) {
     this.transferId = transferId;
     this.userFrom = userFrom;
     this.userTo = userTo;
@@ -31,19 +33,19 @@ public class Transfer {
     this.transferId = transferId;
   }
 
-  public int getUserFrom() {
+  public User getUserFrom() {
     return userFrom;
   }
 
-  public void setUserFrom(int userFrom) {
+  public void setUserFrom(User userFrom) {
     this.userFrom = userFrom;
   }
 
-  public int getUserTo() {
+  public User getUserTo() {
     return userTo;
   }
 
-  public void setUserTo(int userTo) {
+  public void setUserTo(User userTo) {
     this.userTo = userTo;
   }
 

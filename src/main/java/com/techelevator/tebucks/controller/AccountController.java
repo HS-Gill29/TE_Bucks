@@ -31,11 +31,7 @@ public class AccountController {
     private final AccountDao accountDao;
     private final TransferDao transferDao;
 
-    public AccountController(
-            UserDao userDao,
-            AccountDao accountDao,
-            TransferDao transferDao
-    ) {
+    public AccountController(UserDao userDao, AccountDao accountDao, TransferDao transferDao) {
         this.userDao = userDao;
         this.accountDao = accountDao;
         this.transferDao = transferDao;
@@ -91,8 +87,29 @@ public class AccountController {
 
     @PutMapping("/api/transfers/{id}/status")
     public Transfer updateTransferStatus(@PathVariable int id, @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {
-        return transferDao.updateTransfer(transferStatusUpdateDto, id);
+        Transfer transferToUpdate = transferDao.getTransferById(id);
 
+        if (transferStatusUpdateDto.getTransferStatus().equals("Approved")) {
+
+            User userFrom = transferToUpdate.getUserFrom();
+            User userTo = transferToUpdate.getUserTo();
+            int userFromId = userFrom.getId();
+            int userToId = userTo.getId();
+            Account userFromAccount = accountDao.getAccountByUserId(userFromId);
+            if (userFromAccount.getBalance() >= transferToUpdate.getAmount()) {
+                accountDao.subtractFromAccountBalance(userFromId, transferToUpdate.getAmount());
+                accountDao.addToAccountBalance(userToId, transferToUpdate.getAmount());
+                transferToUpdate = transferDao.updateTransfer(transferStatusUpdateDto, id);
+                return transferToUpdate;
+            } else {
+                transferStatusUpdateDto.setTransferStatus("Rejected");
+                transferDao.updateTransfer(transferStatusUpdateDto, id);
+                throw new DaoException ("Can not approve requests that exceed account balance.");
+            }
+        } else {
+            transferDao.updateTransfer(transferStatusUpdateDto, id);
+        }
+        return transferToUpdate;
     }
 
     @GetMapping(path = "/api/users")
@@ -116,7 +133,7 @@ public class AccountController {
     @GetMapping("/api/account/transfers")
     public List<Transfer> getListOfTransfers(Principal principal) {
         int userId = getUserIdFromPrincipal(principal);
-        List<Transfer> listOfTransfers = transferDao.getTransfersByUserId(userId);
+        List<Transfer> listOfTransfers = transferDao.getTransfers(userId, userId);
         return listOfTransfers;
     }
 

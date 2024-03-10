@@ -7,7 +7,7 @@ public class Account {
     private double balance;
     private final double INITIAL_ACCOUNT_BALANCE = 1000.00;
 
-    public Account(int accountId, int userId) {
+    public Account(int accountId, int userId, double balance) {
         this.accountId = accountId;
         this.userId = userId;
         this.balance = INITIAL_ACCOUNT_BALANCE;

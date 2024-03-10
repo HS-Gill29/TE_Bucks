@@ -8,14 +8,12 @@ import com.techelevator.tebucks.security.dao.UserDao;
 import com.techelevator.tebucks.security.model.User;
 
 import java.security.Principal;
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.List;
 import javax.validation.Valid;
 
 import com.techelevator.tebucks.service.TearsService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +39,11 @@ public class AccountController {
     @GetMapping(path = "/api/account/balance")
     public Account getAccount(Principal principal) {
         String username = principal.getName();
-        User userToCreateAccountFor = userDao.getUserByUsername(username);
-        int userId = userToCreateAccountFor.getId();
+        User userToGetAccount = userDao.getUserByUsername(username);
+        int userId = userToGetAccount.getId();
         return accountDao.getAccountByUserId(userId);
     }
+
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/transfers/{id}")
@@ -63,6 +62,7 @@ public class AccountController {
     public Transfer createTransfer(@Valid @RequestBody NewTransferDto newTransferDto) {
         Transfer newTransfer = new Transfer();
 
+        // Check that the amount is greater than zero and the user is not sending to themself
         if (newTransferDto.getAmount() <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
@@ -83,19 +83,24 @@ public class AccountController {
 
             // If sending, check that the transfer won't overdraw account
             if (account.getBalance() >= amountToTransfer) {
+
+                // Set the status & call the createTransfer method to enter transfer into database
                 transferStatus = "Approved";
                 newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
 
-                // Check if the transfer is over $1,000 and log with with TEARS if so
+                // Check if the transfer is over $1,000 and log it with TEARS if so
                 if (amountToTransfer >= 1000) {
                     tearsService.logTransfer(mapTransferToTearsTransferDto(newTransfer));
                 }
+
                 // Go ahead with the transfer by adjusting both accounts appropriately
                 accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
                 accountDao.addToAccountBalance(userToId, amountToTransfer);
 
-            // If the transfer would overdraw the account, create a rejected transfer in the database
+            // If the transfer would overdraw the account
             } else {
+
+                // Set the status & call the createTransfer method to enter transfer into database
                 transferStatus = "Rejected";
                 newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
 
@@ -107,6 +112,7 @@ public class AccountController {
 
         // When the transfer is a request, create a new transfer with a pending status
         } else if (newTransferDto.getTransferType().equals("Request")){
+
             transferStatus = "Pending";
             newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
         }
@@ -116,51 +122,83 @@ public class AccountController {
 
     @PutMapping("/api/transfers/{id}/status")
     public Transfer updateTransferStatus(@PathVariable int id, @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {
+
+        // Use the given id to retrieve the transfer to update
         Transfer transferToUpdate = transferDao.getTransferById(id);
 
+        // Check whether the transfer was approved
         if (transferStatusUpdateDto.getTransferStatus().equals("Approved")) {
 
+            // Pull both users from the transfer retrieved and create variables for their Ids
             User userFrom = transferToUpdate.getUserFrom();
             User userTo = transferToUpdate.getUserTo();
             int userFromId = userFrom.getId();
             int userToId = userTo.getId();
+
+            //Retrieve the account using the userFromId
             Account userFromAccount = accountDao.getAccountByUserId(userFromId);
 
+            // Check that the account balance is greater than the transfer amount
             if (userFromAccount.getBalance() >= transferToUpdate.getAmount()) {
+
+                // If so, complete the transfer by adjusting account balances
                 accountDao.subtractFromAccountBalance(userFromId, transferToUpdate.getAmount());
                 accountDao.addToAccountBalance(userToId, transferToUpdate.getAmount());
+
+                // Set the transfer being updated with it's new status
                 transferToUpdate = transferDao.updateTransfer(transferStatusUpdateDto, id);
                 return transferToUpdate;
 
+            // When the account balance is less than than the transfer amount
             } else {
+
+                /*
+                If the user accepts, they get an error message. How do we give them make the acceptance
+                a rejection instead so that the transaction shows up in rejected, but doesn't say the
+                transaction was completed successfully?
+                 */
+
+                //Set the status to "rejected"
                 transferStatusUpdateDto.setTransferStatus("Rejected");
-                transferDao.updateTransfer(transferStatusUpdateDto, id);
+                transferToUpdate = transferDao.updateTransfer(transferStatusUpdateDto, id);
+
+                // Log the attempted transfer with TEARS and inform user that they can not approve request.
                 tearsService.logTransfer(mapTransferToTearsTransferDto(transferToUpdate));
                 throw new DaoException ("Can not approve requests that exceed account balance.");
             }
         } else {
+
+            // If the transfer is rejected, update the transfer status.
             transferDao.updateTransfer(transferStatusUpdateDto, id);
         }
         return transferToUpdate;
     }
 
+    // This method populates a list of users with whom the principal can transact.
     @GetMapping(path = "/api/users")
     public List<User> getUsers(Principal principal) {
+
+        // Identify the principal's userId
         int userId = getUserIdFromPrincipal(principal);
+
+        // Create a list of all users and a second list that contain all users but principal
         List<User> listOfUsers = userDao.getAllUsers();
         List<User> listOfUsersWithoutPrincipal = new ArrayList<>();
+
+        // Cycle through the master list, adding each user where the userId is not that of the principal
         for (User user : listOfUsers) {
             if (user.getId() != userId) {
                 listOfUsersWithoutPrincipal.add(user);
             }
         }
+        // Chekc to make sure that the list was formulated correctly
         if (listOfUsersWithoutPrincipal == null) {
             throw new DaoException("Can not formulate user list.");
         }
         return listOfUsersWithoutPrincipal;
     }
 
-
+    // Using the principal, get a list of transfers where the principal was either the sender or receiver
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/account/transfers")
     public List<Transfer> getListOfTransfers(Principal principal) {

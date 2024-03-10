@@ -13,6 +13,12 @@ public class Account {
         this.balance = INITIAL_ACCOUNT_BALANCE;
     }
 
+    public Account(int accountId, int userId, double balance) {
+        this.accountId = accountId;
+        this.userId = userId;
+        this.balance = balance;
+    }
+
     public Account() {
 
     }

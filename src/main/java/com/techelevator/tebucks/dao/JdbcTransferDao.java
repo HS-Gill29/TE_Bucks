@@ -20,14 +20,11 @@ import org.springframework.stereotype.Component;
 public class JdbcTransferDao implements TransferDao {
 
   private final JdbcTemplate jdbcTemplate;
-  private UserDao userDao;
-  private AccountDao accountDao;
+  private final UserDao userDao;
+  private final AccountDao accountDao;
 
-  public JdbcTransferDao(
-    JdbcTemplate jdbcTemplate,
-    UserDao userDao,
-    AccountDao accountDao
-  ) {
+
+  public JdbcTransferDao(JdbcTemplate jdbcTemplate, UserDao userDao, AccountDao accountDao) {
     this.jdbcTemplate = jdbcTemplate;
     this.userDao = userDao;
     this.accountDao = accountDao;

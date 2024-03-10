@@ -40,8 +40,8 @@ VALUES
     (3, 1200.00);
 
 
-INSERT INTO transfer (transfer_id, user_from, user_to, amount, transfer_type, transfer_status)
-VALUES (1, 1, 2, 500.00, 'Send', 'Approved');
+INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status)
+VALUES (1, 2, 500.00, 'Send', 'Approved');
 
 
 

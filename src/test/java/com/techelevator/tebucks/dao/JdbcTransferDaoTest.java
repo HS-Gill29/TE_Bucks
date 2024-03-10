@@ -44,7 +44,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void sendTransfer_withNegativeAmount_should_throw_exception() {
+    public void sendTransfer_with_negative_amount_should_throw_exception() {
         NewTransferDto transferDto = new NewTransferDto();
         transferDto.setUserFrom(1);
         transferDto.setUserTo(2);
@@ -55,7 +55,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void sendTransfer_withSameUserIds_should_throw_exception() {
+    public void sendTransfer_with_same_userIds_should_throw_exception() {
         NewTransferDto transferDto = new NewTransferDto();
         transferDto.setUserFrom(1);
         transferDto.setUserTo(1);
@@ -78,7 +78,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
 
     }
     @Test(expected = IllegalArgumentException.class)
-    public void requestTransfer_withNegativeAmount_should_throw_exception() {
+    public void requestTransfer_with_negative_amount_should_throw_exception() {
         NewTransferDto transferDto = new NewTransferDto();
         transferDto.setUserFrom(1);
         transferDto.setUserTo(2);
@@ -89,7 +89,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void requestTransfer_withSameUserIds_should_throw_exception() {
+    public void requestTransfer_with_same_userIds_should_throw_exception() {
         NewTransferDto transferDto = new NewTransferDto();
         transferDto.setUserFrom(1);
         transferDto.setUserTo(1);
@@ -124,7 +124,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     }
 
     @Test
-    public void updateTransfer_to_rejected_status_successfully() {
+    public void updateTransfer_to_rejected_status_is_success() {
         TransferStatusUpdateDto transferStatusUpdateDto = new TransferStatusUpdateDto();
         transferStatusUpdateDto.setTransferStatus("Rejected");
         int transferId = 1;
@@ -136,7 +136,7 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     }
 
     @Test
-    public void updateTransfer_to_pending_status_successfully() {
+    public void updateTransfer_to_pending_status_is_successful() {
         TransferStatusUpdateDto transferStatusUpdateDto = new TransferStatusUpdateDto();
         transferStatusUpdateDto.setTransferStatus("Pending");
         int transferId = 1;

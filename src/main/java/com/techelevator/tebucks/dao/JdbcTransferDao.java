@@ -23,6 +23,7 @@ public class JdbcTransferDao implements TransferDao {
   private UserDao userDao;
   private AccountDao accountDao;
 
+
   public JdbcTransferDao(
     JdbcTemplate jdbcTemplate,
     UserDao userDao,
@@ -33,10 +34,10 @@ public class JdbcTransferDao implements TransferDao {
     this.accountDao = accountDao;
   }
 
+
   @Override
   public List<Transfer> getTransfers(int userFromId, int userToId) {
     List<Transfer> transfers = new ArrayList<>();
-    String sqlForUser = "select * from users where user_id = ?;";
     String sql = "select * from transfer where user_from = ? or user_to = ?;";
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(
@@ -63,6 +64,7 @@ public class JdbcTransferDao implements TransferDao {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
       if (results.next()) {
         transfer = mapRowToTransfer(results);
+
       }
     } catch (CannotGetJdbcConnectionException e) {
       throw new DaoException("Unable to connect to server or database.", e);
@@ -190,6 +192,7 @@ public class JdbcTransferDao implements TransferDao {
     Transfer transfer = new Transfer();
     transfer.setTransferId(results.getInt("transfer_id"));
     transfer.setUserFrom(userDao.getUserById(results.getInt("user_from")));
+
     transfer.setUserTo(userDao.getUserById(results.getInt("user_to")));
     transfer.setAmount(results.getDouble("amount"));
     transfer.setTransferType(results.getString("transfer_type"));

@@ -57,44 +57,58 @@ public class AccountController {
     }
 
 
+    //Create a method to initiate a new transfer
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/transfers")
     public Transfer createTransfer(@Valid @RequestBody NewTransferDto newTransferDto) {
         Transfer newTransfer = new Transfer();
+
+        if (newTransferDto.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
+        if (newTransferDto.getUserFrom() == newTransferDto.getUserTo()) {
+            throw new IllegalArgumentException("Cannot send transfer to yourself");
+        }
+
+        // Use the information passed from the website to pull the users and transfer amount
         int userFromId = newTransferDto.getUserFrom();
         int userToId = newTransferDto.getUserTo();
         double amountToTransfer = newTransferDto.getAmount();
+        String transferStatus = "";
 
-
+        // Check whether the transfer is a send or request
         if (newTransferDto.getTransferType().equals("Send")) {
             Account account = accountDao.getAccountByUserId(userFromId);
 
+            // If sending, check that the transfer won't overdraw account
             if (account.getBalance() >= amountToTransfer) {
-                newTransfer = transferDao.sendTransfer(newTransferDto);
+                transferStatus = "Approved";
+                newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
 
+                // Check if the transfer is over $1,000 and log with with TEARS if so
                 if (amountToTransfer >= 1000) {
                     tearsService.logTransfer(mapTransferToTearsTransferDto(newTransfer));
                 }
+                // Go ahead with the transfer by adjusting both accounts appropriately
                 accountDao.subtractFromAccountBalance(userFromId, amountToTransfer);
                 accountDao.addToAccountBalance(userToId, amountToTransfer);
 
-
+            // If the transfer would overdraw the account, create a rejected transfer in the database
             } else {
-                Transfer transferToLog = new Transfer();
-                transferToLog.setTransferStatus("Rejected");
-                transferToLog.setUserFrom(userDao.getUserById(userFromId));
-                transferToLog.setUserTo(userDao.getUserById(userToId));
-                transferToLog.setTransferType(newTransferDto.getTransferType());
-                transferToLog.setAmount(amountToTransfer);
-                transferToLog.setTransferId(99);
+                transferStatus = "Rejected";
+                newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
 
-                tearsService.logTransfer(mapTransferToTearsTransferDto(transferToLog));
+                // Log the transfer attempt with TEARS
+                tearsService.logTransfer(mapTransferToTearsTransferDto(newTransfer));
                 throw new DaoException("Insufficient funds.");
 
             }
 
+        // When the transfer is a request, create a new transfer with a pending status
         } else if (newTransferDto.getTransferType().equals("Request")){
-            newTransfer = transferDao.requestTransfer(newTransferDto);
+            transferStatus = "Pending";
+            newTransfer = transferDao.createTransfer(newTransferDto, transferStatus);
         }
         return newTransfer;
     }
@@ -162,19 +176,29 @@ public class AccountController {
         return userId;
     }
 
-    private TearsTransferDto mapTransferToTearsTransferDto (Transfer transfer) {
+    // Create a method to reformat a transfer to align with needed information for TEARS api
+    public TearsTransferDto mapTransferToTearsTransferDto (Transfer transfer) {
         TearsTransferDto transferToLog = new TearsTransferDto();
+
+        // Pull the users involved from the original transfer
         User userFrom = transfer.getUserFrom();
         User userTo = transfer.getUserTo();
+
+        // Pull the account involved using the userFrom id
         Account userFromAccount = accountDao.getAccountByUserId(userFrom.getId());
 
+        // Set the description explaining the reason for logging w/ TEARS based on transfer amount
         if (transfer.getAmount() >= 1000 && transfer.getAmount() > userFromAccount.getBalance()) {
-            transferToLog.setDescription("Transfer is $1,000 or more and attempted transfer overdraws account.");
+            transferToLog.setDescription("Transfer is $1,000 or more. Attempted transfer overdraws account.");
+
         } else if (transfer.getAmount() > userFromAccount.getBalance()) {
             transferToLog.setDescription("Attempted transfer overdraws account.");
+
         } else if (transfer.getAmount() >= 1000) {
             transferToLog.setDescription("Transfer is $1,000 or more.");
         }
+
+        // Set the username of both parties involved  as well as the transfer amount
         transferToLog.setUsernameFrom(userFrom.getUsername());
         transferToLog.setUsernameTo(userTo.getUsername());
         transferToLog.setAmount(transfer.getAmount());

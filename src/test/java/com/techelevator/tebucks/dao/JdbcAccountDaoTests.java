@@ -1,7 +1,6 @@
 package com.techelevator.tebucks.dao;
 
 import com.techelevator.tebucks.model.Account;
-import com.techelevator.tebucks.security.dao.JdbcUserDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
-public class JdbcAccountDaoTest extends BaseDaoTests{
+public class JdbcAccountDaoTests extends BaseDaoTests{
     public static final Account ACCOUNT_1 = new Account(1, 1, 1000.00);
     public static final Account ACCOUNT_2 = new Account(2, 2, 1100.00);
     public static final Account ACCOUNT_3 = new Account(3, 3, 1200.00);

@@ -12,12 +12,7 @@ public interface TransferDao {
 
     Transfer getTransferById(int transferId);
 
-//    List<Transfer> getTransfersByAccountId(int accountId);
-
-    Transfer sendTransfer(NewTransferDto newTransferDto);
-
-    Transfer requestTransfer(NewTransferDto newTransferDto);
-
+    Transfer createTransfer(NewTransferDto newTransferDto, String transferStatus);
 
     Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId);
 

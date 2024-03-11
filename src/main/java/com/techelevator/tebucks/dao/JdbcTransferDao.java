@@ -20,15 +20,11 @@ import org.springframework.stereotype.Component;
 public class JdbcTransferDao implements TransferDao {
 
   private final JdbcTemplate jdbcTemplate;
-  private UserDao userDao;
-  private AccountDao accountDao;
+  private final UserDao userDao;
+  private final AccountDao accountDao;
 
 
-  public JdbcTransferDao(
-    JdbcTemplate jdbcTemplate,
-    UserDao userDao,
-    AccountDao accountDao
-  ) {
+  public JdbcTransferDao(JdbcTemplate jdbcTemplate, UserDao userDao, AccountDao accountDao) {
     this.jdbcTemplate = jdbcTemplate;
     this.userDao = userDao;
     this.accountDao = accountDao;
@@ -40,11 +36,8 @@ public class JdbcTransferDao implements TransferDao {
     List<Transfer> transfers = new ArrayList<>();
     String sql = "select * from transfer where user_from = ? or user_to = ?;";
     try {
-      SqlRowSet results = jdbcTemplate.queryForRowSet(
-        sql,
-        userFromId,
-        userToId
-      );
+      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userFromId, userToId);
+
       while (results.next()) {
         Transfer transfer = mapRowToTransfer(results);
         transfers.add(transfer);
@@ -77,46 +70,26 @@ public class JdbcTransferDao implements TransferDao {
     return transfer;
   }
 
-  //    @Override
-  //    public List<Transfer> getTransfersByUserId(int userId) {
-  //        List<Transfer> listOfTransfers = new ArrayList<>();
-  //        String sql = "select * from transfer where account_id = ?;";
-  //        try {
-  //
-  //            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-  //            while (results.next()) {
-  //                Transfer transfer = mapRowToTransfer(results);
-  //                listOfTransfers.add(transfer);
-  //            }
-  //        } catch (CannotGetJdbcConnectionException e) {
-  //            throw new DaoException("Unable to connect to server or database.", e);
-  //        }
-  //        return listOfTransfers;
-  //    }
-
-  @Override
-  public Transfer sendTransfer(NewTransferDto transferToSend) {
-    if (transferToSend.getAmount() <= 0) {
+  public Transfer createTransfer(NewTransferDto newTransferDto, String transferStatus) {
+    if (newTransferDto.getAmount() <= 0) {
       throw new IllegalArgumentException("Amount must be positive");
     }
 
-    if (transferToSend.getUserFrom() == transferToSend.getUserTo()) {
+    if (newTransferDto.getUserFrom() == newTransferDto.getUserTo()) {
       throw new IllegalArgumentException("Cannot send transfer to yourself");
     }
-    Transfer transfer = null;
-    String transferStatus = "Approved";
+
+    Transfer transfer = new Transfer();
     String sql =
-      "INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status) " +
-      "VALUES (?,?,?,?,?) RETURNING transfer_id;";
+            "INSERT INTO transfer (user_from, user_to, amount, transfer_type, transfer_status) " +
+                    "VALUES (?,?,?,?,?) RETURNING transfer_id;";
     try {
-      int transferId = jdbcTemplate.queryForObject(
-        sql,
-        int.class,
-        transferToSend.getUserFrom(),
-        transferToSend.getUserTo(),
-        transferToSend.getAmount(),
-        transferToSend.getTransferType(),
-        transferStatus
+      int transferId = jdbcTemplate.queryForObject(sql, int.class,
+              newTransferDto.getUserFrom(),
+              newTransferDto.getUserTo(),
+              newTransferDto.getAmount(),
+              newTransferDto.getTransferType(),
+              transferStatus
       );
 
       transfer = getTransferById(transferId);
@@ -129,49 +102,10 @@ public class JdbcTransferDao implements TransferDao {
     return transfer;
   }
 
-  @Override
-  public Transfer requestTransfer(NewTransferDto transferToRequest) {
-    if (transferToRequest.getAmount() <= 0) {
-      throw new IllegalArgumentException("Amount must be positive");
-    }
-
-    if (transferToRequest.getUserFrom() == transferToRequest.getUserTo()) {
-      throw new IllegalArgumentException(
-        "Cannot request transfer from yourself"
-      );
-    }
-
-    Transfer transfer = null;
-    String transferStatus = "Pending";
-    String sql =
-      "INSERT INTO transfer (user_from, user_to, amount, transfer_status, transfer_type) " +
-      "VALUES (?,?,?,?,?) RETURNING transfer_id;";
-    try {
-      int transferId = jdbcTemplate.queryForObject(
-        sql,
-        int.class,
-        transferToRequest.getUserFrom(),
-        transferToRequest.getUserTo(),
-        transferToRequest.getAmount(),
-        transferStatus,
-        transferToRequest.getTransferType()
-      );
-
-      transfer = getTransferById(transferId);
-    } catch (CannotGetJdbcConnectionException e) {
-      throw new DaoException("Unable to connect to server or database.", e);
-    } catch (DataIntegrityViolationException e) {
-      throw new DaoException("Data integrity violation", e);
-    }
-    if (transfer == null) {
-      throw new DaoException("Transfer not successful.");
-    }
-    return transfer;
-  }
 
   @Override
   public Transfer updateTransfer(TransferStatusUpdateDto transferStatusUpdateDto, int transferId) {
-    Transfer transferToUpdate = null;
+    Transfer transferToUpdate = new Transfer();
     String sql = "update transfer set transfer_status = ? where transfer_id = ?;";
     try {
       String newStatus = transferStatusUpdateDto.getTransferStatus();

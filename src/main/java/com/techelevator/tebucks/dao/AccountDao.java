@@ -11,11 +11,10 @@ public interface AccountDao {
 
     Account getAccountByAccountId(int accountId);
 
-//    Account createAccount(int userId);
-
     Account getAccountByUserId(int userId);
 
     Account addToAccountBalance(int userId, double amountToAdd);
+
     Account subtractFromAccountBalance(int userId, double amountToSubtract);
 
 }

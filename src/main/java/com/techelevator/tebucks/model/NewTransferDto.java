@@ -1,5 +1,6 @@
 package com.techelevator.tebucks.model;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Positive;
 
 public class NewTransferDto {
@@ -9,6 +10,14 @@ public class NewTransferDto {
     @Positive(message = "Amount must be greater than 0.")
     private double amount;
     private String transferType;
+
+    @AssertTrue
+    private boolean isTransferTypeValid() {
+        if (transferType != null && (transferType.equals("Send") || transferType.equals("Request"))) {
+            return true;
+        }
+        return false;
+    }
 
     public int getUserFrom() {
         return userFrom;

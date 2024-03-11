@@ -36,11 +36,8 @@ public class JdbcTransferDao implements TransferDao {
     List<Transfer> transfers = new ArrayList<>();
     String sql = "select * from transfer where user_from = ? or user_to = ?;";
     try {
-      SqlRowSet results = jdbcTemplate.queryForRowSet(
-        sql,
-        userFromId,
-        userToId
-      );
+      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userFromId, userToId);
+
       while (results.next()) {
         Transfer transfer = mapRowToTransfer(results);
         transfers.add(transfer);

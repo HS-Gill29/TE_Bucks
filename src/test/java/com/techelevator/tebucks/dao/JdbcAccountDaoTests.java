@@ -1,7 +1,6 @@
 package com.techelevator.tebucks.dao;
 
 import com.techelevator.tebucks.model.Account;
-import com.techelevator.tebucks.security.dao.JdbcUserDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +29,9 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
     }
     @Test
     public void  getAccountByAccountId_returns_correct_account(){
-        Account account1 = sut.getAccountByAccountId(1);
-        Assert.assertEquals(1000,account1.getBalance(),0.0);
-        Assert.assertEquals(1,account1.getUserId());
+       Account account1 = sut.getAccountByAccountId(1);
+       Assert.assertEquals(1000,account1.getBalance(),0.0);
+       Assert.assertEquals(1,account1.getUserId());
 
         Account account2 = sut.getAccountByAccountId(2);
         Assert.assertEquals(1100,account2.getBalance(),0.0);
@@ -88,4 +87,3 @@ public class JdbcAccountDaoTests extends BaseDaoTests{
     }
 
 }
-

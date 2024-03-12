@@ -126,7 +126,6 @@ public class JdbcTransferDao implements TransferDao {
     Transfer transfer = new Transfer();
     transfer.setTransferId(results.getInt("transfer_id"));
     transfer.setUserFrom(userDao.getUserById(results.getInt("user_from")));
-
     transfer.setUserTo(userDao.getUserById(results.getInt("user_to")));
     transfer.setAmount(results.getDouble("amount"));
     transfer.setTransferType(results.getString("transfer_type"));

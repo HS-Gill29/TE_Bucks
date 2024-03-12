@@ -121,7 +121,7 @@ public class AccountController {
 
 
     @PutMapping("/api/transfers/{id}/status")
-    public Transfer updateTransferStatus(@PathVariable int id, @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {
+    public Transfer updateTransferStatus(@PathVariable int id, @Valid @RequestBody TransferStatusUpdateDto transferStatusUpdateDto) {
 
         // Use the given id to retrieve the transfer to update
         Transfer transferToUpdate = transferDao.getTransferById(id);
@@ -160,7 +160,6 @@ public class AccountController {
 
                 //Set the status to "rejected"
                 transferStatusUpdateDto.setTransferStatus("Rejected");
-                transferToUpdate = transferDao.updateTransfer(transferStatusUpdateDto, id);
 
                 // Log the attempted transfer with TEARS and inform user that they can not approve request.
                 tearsService.logTransfer(mapTransferToTearsTransferDto(transferToUpdate));
@@ -190,10 +189,6 @@ public class AccountController {
             if (user.getId() != userId) {
                 listOfUsersWithoutPrincipal.add(user);
             }
-        }
-        // Chekc to make sure that the list was formulated correctly
-        if (listOfUsersWithoutPrincipal == null) {
-            throw new DaoException("Can not formulate user list.");
         }
         return listOfUsersWithoutPrincipal;
     }
